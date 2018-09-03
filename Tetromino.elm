@@ -16,7 +16,6 @@ type alias Tetromino = { shape: List Location,
                         }
 
 toForm: Tetromino -> Form 
-
 toForm {shape, block} = 
     let form = Block.toForm block
         translate (row, col) = move ((toFloat col) * Block.size,
@@ -26,8 +25,8 @@ toForm {shape, block} =
 
 
 i: Tetromino
-i = { shape = [ (1, 0), (0,0), (-1,0), (-2,0)], 
-        block = Block Color.lightBlue,
+i = { shape = [(1, 0), (0,0), (-1,0), (-2,0)], 
+        block = Block Color.lightBlue, {-change to pink-}
         pivot = { r = -0.5, c = 0.5},
         rows = 4,
         cols = 1
@@ -98,7 +97,6 @@ rotateTetromino tetromino =
     let specificRotationLocation = rotateLocation tetromino.pivot (degrees 90)
         newShape = List.map specificRotationLocation tetromino.shape
     in { tetromino | shape = newShape , rows = tetromino.cols, cols = tetromino.rows}
-
 
 
 shift : Location -> Tetromino -> Tetromino
