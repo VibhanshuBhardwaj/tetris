@@ -1,10 +1,4 @@
 module Controller exposing (..)
-{-import Keyboard exposing (presses)
-import Basics exposing (..)
-import Element exposing (Element, show)
-{-import Signal exposing (Signal)-}
-
-import Platform.Sub exposing (..)-}
 import Tetromino exposing (..)
 import Html exposing (Html, div, text, program)
 import Collage exposing (..)
@@ -13,6 +7,7 @@ import Mouse
 import Keyboard
 import Char
 import Time exposing (Time, second)
+import Board exposing (Board)
 type Input = Rotate | Shift (Int, Int)
 
 
@@ -20,10 +15,10 @@ type Input = Rotate | Shift (Int, Int)
 
 
 type alias Model =
-    {falling: Tetromino }
+    {falling: Tetromino, board: Board }
 
 defaultModel: Model
-defaultModel = {falling= Tetromino.j}
+defaultModel = {falling= Tetromino.shift startingShift Tetromino.j, board = Board.new []}
 init : ( Model, Cmd Msg )
 init =
     ( defaultModel, Cmd.none )
@@ -47,7 +42,8 @@ view model =
     let width = 800
         height = 400
         fallingForm = Tetromino.toForm model.falling
-    in Element.toHtml <| collage width height [fallingForm]
+        boardForm = Board.addTetromino model.falling model.board |> Board.toForm
+    in Element.toHtml <| collage width height [boardForm]
 
 
 
@@ -68,11 +64,12 @@ update msg model =
             in (newModel, Cmd.none)
 
 
-    
+{-useIfValid : Model -> Model ->  Model     -}
 
 -- SUBSCRIPTIONS
 
-
+startingShift: (Int, Int)
+startingShift = (20, 5)
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
