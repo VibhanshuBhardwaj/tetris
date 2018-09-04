@@ -5,7 +5,7 @@ import Dict exposing (Dict)
 
 import Html exposing (Html, div, text, program)
 import Collage exposing (..)
-import Element
+import Element exposing (Element, flow, down, show)
 import Tetromino exposing (Tetromino, Location)
 import Tuple 
 
@@ -61,7 +61,7 @@ addTetromino {shape, block} board =
     let asBoard = List.map2 (,) shape (List.repeat 4 block) |> new
     in Dict.union asBoard board
 
-tetromino = Tetromino.shift (5, 5) Tetromino.j
+tetromino = Tetromino.shift (0, 5) Tetromino.j
 checkRow: Int -> Board -> Bool
 checkRow row board =
     let blocks = Dict.filter (\ (r, _) _ -> r == row) board
@@ -85,9 +85,8 @@ testForm = addBlock (0, 0) (Block Color.blue) background
 
 testBoard: Board 
 testBoard = new [((0, 0), Block Color.blue), ((0,1), Block Color.yellow)]
-test = new [] |> fillRow 0 (Block Color.red) |> fillRow 1 (Block Color.yellow)
-            |> fillRow 2 (Block Color.blue) |> Dict.remove (1, 0) |> clearLines |> Tuple.second
-            |> addTetromino tetromino
+test = new []
+            
 inBounds : Tetromino -> Bool
 inBounds {shape} = 
     let checkLocation (r, c) = r>=0 && c>=0 && c< cols
@@ -95,8 +94,15 @@ inBounds {shape} =
 
 isIntersecting: Tetromino -> Board -> Bool
 isIntersecting {shape} board = 
-    (inBounds tetromino) && not (isIntersecting tetromino board)
+    let checkLocation location = Dict.member location board
+    in List.any checkLocation shape {-(inBounds tetromino) && not (isIntersecting tetromino board)-}
+
+isValid: Tetromino -> Board -> Bool
+isValid tetro board = 
+    (inBounds tetro) && not (isIntersecting tetro board)
+
 main: Html.Html msg
- 
-main = Element.toHtml <| collage 600 600 [toForm test]
+
+
+main = Element.toHtml <| flow down [collage 600 600 [toForm (addTetromino tetromino test)], show <| isValid tetromino test]
             
