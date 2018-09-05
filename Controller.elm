@@ -2,29 +2,58 @@ module Controller exposing (..)
 import Tetromino exposing (..)
 import Html exposing (Html, div, text, program)
 import Collage exposing (..)
-import Element
+import Element exposing (Element, show, flow, down)
 import Mouse
 import Keyboard
 import Char
 import Time exposing (Time, second)
+import Random exposing (Generator, Seed)
 import Board exposing (Board)
+import Tuple
+import Dict
 type Input = Rotate | Shift (Int, Int)
 
 
 -- MODEL
 
-
+initialSeed = 10
 type alias Model =
-    {falling: Tetromino, board: Board }
+    {falling: Tetromino, board: Board, seed: Seed, bag: List Tetromino, score: Int}
 
 defaultModel: Model
-defaultModel = {falling= Tetromino.shift startingShift Tetromino.j, board = Board.new []}
+defaultModel = 
+    let initSeed = Random.initialSeed initialSeed
+        bag = Random.step Tetromino.bag initSeed |> Tuple.first
+        seed = Random.step Tetromino.bag initSeed |> Tuple.second
+        falling = List.head bag |> Maybe.withDefault Tetromino.j
+        newBag = List.drop 1 bag
+    in { falling= Tetromino.shift startingShift falling,
+                seed = seed,
+                bag = newBag,
+                board = Board.new [],
+                score = 0
+                
+        }
+isGameOver: Model -> Bool
+isGameOver model  =
+    let checkIfOver (r, c)= r>=20 
+    in List.any checkIfOver (Dict.keys model.board)
 init : ( Model, Cmd Msg )
 init =
     ( defaultModel, Cmd.none )
-
-
-
+checkBag: Model -> Model
+checkBag state = 
+    if not (List.isEmpty state.bag ) then state
+    else let (bag, seed) = Random.step Tetromino.bag state.seed
+        in {state | bag = bag, seed = seed}
+nextTetromino : Model -> Model
+nextTetromino model = 
+    let state = checkBag model
+        nextFalling = List.head state.bag |> Maybe.withDefault Tetromino.o |>
+                        Tetromino.shift startingShift
+        nextBag = List.drop 1 state.bag 
+        (lines, nextBoard) = Board.addTetromino state.falling state.board |> Board.clearLines
+    in {state | falling = nextFalling, bag=nextBag, board= nextBoard, score  =state.score + lines} 
 -- MESSAGES
 
 
@@ -54,7 +83,7 @@ view model =
         height = 600
         fallingForm = Tetromino.toForm model.falling
         boardForm = Board.addTetromino model.falling model.board |> Board.toForm
-    in Element.toHtml <| collage width height [boardForm]
+    in Element.toHtml <| flow down [ collage width height [boardForm], show <| model.score]
 
 
 
@@ -83,7 +112,10 @@ update msg model =
             in correctMove
         Tick newTime ->
             let newFalling = shift (-1, 0) model.falling
-                newModel = isUpdateValid {model | falling = newFalling}
+                isValid = Board.isValid newFalling model.board
+                newModel = if isValid then {model | falling = newFalling}
+                            else if (isGameOver model) then {defaultModel | score = model.score }
+                            else nextTetromino model
             in (newModel, Cmd.none)
 
 
@@ -98,11 +130,11 @@ startingShift: (Int, Int)
 startingShift = (20, 5)
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [
-         Time.every second Tick,
-         Keyboard.downs KeyMsg
-        ]
+    if (not (isGameOver model)) then Sub.batch[
+                        Time.every second Tick,
+                        Keyboard.downs KeyMsg
+                        ]
+    else Sub.none
 
 
 

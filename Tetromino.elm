@@ -6,6 +6,8 @@ import Color exposing (Color)
 import Html
 import List
 import Block exposing (Block)
+import Random exposing (Generator)
+import Tuple
 
 type alias Location  = (Int, Int)
 type alias Tetromino = { shape: List Location,
@@ -107,7 +109,19 @@ shift (rows, cols) tetromino =
         newPivot = {r = tetromino.pivot.r + (toFloat rows), c = tetromino.pivot.c + (toFloat cols)}
     in {tetromino | shape = newShape, pivot = newPivot}
 
+zeroToOne: Generator Float 
+zeroToOne =  Random.float 0 1
 tetro =  shift (-9, 2) <|rotateTetromino t
+shuffleBag: List Float -> List Tetromino
+shuffleBag weights = 
+    let tetrominos = [i, o, j, l, z, s, t]
+        weighted = List.map2 (,) weights tetrominos
+        sorted = List.sortBy Tuple.first weighted
+    in List.map Tuple.second sorted
+bag: Generator (List Tetromino)
+bag = 
+    let weights = Random.list 7 zeroToOne
+    in Random.map shuffleBag weights
 main: Html.Html msg
-main = Element.toHtml <|collage 1000 1000 [toForm tetro, drawPivot tetro]
+main =  Element.toHtml <|collage 1000 1000 [toForm tetro, drawPivot tetro]
 

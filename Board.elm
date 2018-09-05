@@ -86,7 +86,8 @@ testForm = addBlock (0, 0) (Block Color.blue) background
 testBoard: Board 
 testBoard = new [((0, 0), Block Color.blue), ((0,1), Block Color.yellow)]
 test = new []
-            
+    
+           
 inBounds : Tetromino -> Bool
 inBounds {shape} = 
     let checkLocation (r, c) = r>=0 && c>=0 && c< cols
