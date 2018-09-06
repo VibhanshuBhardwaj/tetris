@@ -1,4 +1,4 @@
-module Controller exposing (..)
+module Game exposing (..)
 import Tetromino exposing (..)
 import Html exposing (Html, div, text, program)
 import Collage exposing (..)
