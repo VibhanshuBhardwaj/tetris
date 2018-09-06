@@ -124,7 +124,7 @@ view model =
         height = 600
         fallingForm = Tetromino.toForm model.falling
         boardForm = Board.addTetromino model.falling model.board |> Board.toForm
-        title = show <| " Quatris"
+        title = show <| "Quatris | Use arrow keys to move the falling pieces. The up arrow rotates the falling piece."
         messageToDisplay = if (isGameOver model) then "Game over! Your score was " ++ (toString model.score) ++ ". Press R to restart"
                             else "Current score: " ++ (toString model.score) ++ ". Press D to make the game more difficult"
         elem = flow down [ collage width height [boardForm], show <| messageToDisplay]
