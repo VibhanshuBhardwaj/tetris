@@ -12553,7 +12553,7 @@ var _user$project$Game$view = function (model) {
 			_elm_lang$core$Basics_ops['++'],
 			_elm_lang$core$Basics$toString(model.score),
 			'. Press D to make the game more difficult'));
-	var title = _evancz$elm_graphics$Element$show('Pull up on your block, then break it down: we playin\' Quatris');
+	var title = _evancz$elm_graphics$Element$show('Pull up on your block, then break it down: we playin\' Quatris || Use arrow keys to move the falling pieces. The up arrow rotates the falling piece.');
 	var boardForm = _user$project$Board$toForm(
 		A2(_user$project$Board$addTetromino, model.falling, model.board));
 	var fallingForm = _user$project$Tetromino$toForm(model.falling);
