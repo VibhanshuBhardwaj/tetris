@@ -1,1 +1,3 @@
-Install and go to Game.elm in your browser to play a MVP of QUATris. Tetris game written in Elm because I was bored of React
+Clone the repo and open up quatris.html. You can see a live version at
+
+vibhanshu.io/quatris.html
